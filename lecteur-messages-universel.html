@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>📧 Lecteur d'Emails & Messages Universel</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTGVjdGV1ciBkZSBNZXNzYWdlcyIsInNob3J0X25hbWUiOiJMZWN0ZXVyIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwidGhlbWVfY29sb3IiOiIjNjY3ZWVhIiwiYmFja2dyb3VuZF9jb2xvciI6IiM3NjRiYTIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTWpRaUlHaGxhV2RvZEQwaU1qUWlJSFpwWlhkQ2IzZzlJakFnTUNBeU5DQXlOQ0lnWm1sc2JEMGlibTl1WlNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0S1BIQmhkR2dnWkQwaVRURXlJREpNTXlBM1ZqRTNUREV5SURJMVREY2dNVFpoVWprdkxUWnlUVEkySWowdUlpQm1hV3hzUFNJaVpXRTBNek0xSWk4K0NqeDBaWGgwSUhnOUlqRXlJaUI1UFNJeE1TSWdhWEJwSUh0bWIyNTBMV1poYldsc2VUb2dMV0Z3Y0d4bExYTjVjM1JsYlN3Z1FteHBibXROWVdOVGVYTjBaVzFHYjI1MEluMCtRRHd2ZEdWNGRENEtQQzl6ZG1jKyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+    
+    <style>
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --accent-color: #48bb78;
+    --danger-color: #e53e3e;
+    --warning-color: #ed8936;
+    --success-color: #38a169;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --bg-white: #ffffff;
+    --bg-light: #f7fafc;
+    --bg-dark: rgba(0,0,0,0.9);
+    --border-light: #e2e8f0;
+    --shadow: 0 10px 30px rgba(0,0,0,0.2);
+    --radius: 8px;
+    --radius-lg: 15px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    touch-action: manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container responsive */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+    width: 100%;
+}
+
+/* Header adaptatif */
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    color: white;
+    padding: 10px 0;
+}
+
+.header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-weight: 700;
+}
+
+.header p {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.header a {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* Status indicator */
+.status-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-dark);
+    color: white;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    z-index: 1001;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    display: none;
+}
+
+.status-indicator.active {
+    display: block;
+}
+
+.status-indicator.listening {
+    background: var(--success-color);
+}
+
+.status-indicator.reading {
+    background: var(--primary-color);
+}
+
+.status-indicator.error {
+    background: var(--danger-color);
+}
+
+/* Auto-reader panel */
+.auto-reader-panel {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--success-color);
+}
+
+.auto-reader-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.auto-reader-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.auto-toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.auto-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.auto-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.auto-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .auto-slider {
+    background-color: var(--success-color);
+}
+
+input:checked + .auto-slider:before {
+    transform: translateX(26px);
+}
+
+.auto-reader-settings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.setting-group {
+    background: var(--bg-light);
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+}
+
+.setting-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.setting-group select,
+.setting-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Message interceptor styles */
+.message-sources {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.source-card {
+    background: var(--bg-light);
+    border-radius: var(--radius);
+    padding: 15px;
+    border: 2px solid var(--border-light);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.source-card.active {
+    border-color: var(--success-color);
+    background: #f0fff4;
+}
+
+.source-card.error {
+    border-color: var(--danger-color);
+    background: #fed7d7;
+}
+
+.source-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.source-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.source-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.source-status.active {
+    background: var(--success-color);
+    box-shadow: 0 0 5px var(--success-color);
+}
+
+.source-status.error {
+    background: var(--danger-color);
+    box-shadow: 0 0 5px var(--danger-color);
+}
+
+.source-description {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.source-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.source-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.3s ease;
+}
+
+.source-btn:hover {
+    background: #5a67d8;
+}
+
+.source-btn.disconnect {
+    background: var(--danger-color);
+}
+
+.source-btn.disconnect:hover {
+    background: #c53030;
+}
+
+/* Live messages display */
+.live-messages {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.live-message-item {
+    background: var(--bg-light);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--primary-color);
+    position: relative;
+    animation: slideIn 0.3s ease;
+}
+
+.live-message-item.new {
+    border-left-color: var(--success-color);
+    background: #f0fff4;
+}
+
+.live-message-item.reading {
+    border-left-color: var(--warning-color);
+    background: #fffbf0;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.message-source {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.message-content {
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.message-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.message-btn {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    transition: all 0.3s ease;
+}
+
+.message-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+/* Login Section - Responsive */
+.login-section {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: clamp(15px, 4vw, 30px);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.login-header h2 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+}
+
+.login-header p {
+    color: var(--text-secondary);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+/* Provider Selection - Grille responsive */
+.provider-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.provider-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 8px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    background: var(--bg-white);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    font-weight: 500;
+    min-height: 50px;
+    touch-action: manipulation;
+}
+
+.provider-btn:hover,
+.provider-btn:focus {
+    border-color: var(--primary-color);
+    background: var(--bg-light);
+    transform: translateY(-1px);
+}
+
+.provider-btn.selected {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.provider-btn img {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Input responsive */
+.email-input-section {
+    margin-top: 20px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    transition: border-color 0.3s ease;
+    background: var(--bg-white);
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Method Cards - Responsive */
+.method-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.method-card {
+    background: var(--bg-light);
+    border-radius: var(--radius);
+    padding: 15px;
+    text-align: center;
+    border: 2px solid var(--border-light);
+    transition: all 0.3s ease;
+}
+
+.method-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.method-card h4 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.method-card p {
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+    line-height: 1.4;
+}
+
+.connect-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    transition: background 0.3s ease;
+    width: 100%;
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+.connect-btn:hover,
+.connect-btn:focus {
+    background: #5a67d8;
+}
+
+/* Temp Email Section */
+.temp-email-section {
+    background: #f0fff4;
+    border-radius: var(--radius);
+    padding: 15px;
+    border: 2px solid #9ae6b4;
+}
+
+.temp-email-controls {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+}
+
+.temp-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    min-height: 44px;
+    flex: 1;
+    min-width: 120px;
+    touch-action: manipulation;
+}
+
+.temp-btn:hover {
+    background: #38a169;
+}
+
+.temp-email-info {
+    background: white;
+    border-radius: var(--radius);
+    padding: 12px;
+    border: 1px solid #c6f6d5;
+}
+
+.temp-email-address {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.email-address {
+    background: #edf2f7;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    word-break: break-all;
+    flex: 1;
+    min-width: 0;
+}
+
+.copy-btn {
+    background: #4299e1;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    min-height: 32px;
+    white-space: nowrap;
+    touch-action: manipulation;
+}
+
+/* Email Section - Responsive */
+.email-section {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: clamp(15px, 4vw, 30px);
+    box-shadow: var(--shadow);
+    min-height: 400px;
+}
+
+.email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.email-info h2 {
+    color: var(--text-primary);
+    margin-bottom: 5px;
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    word-break: break-all;
+}
+
+.email-count {
+    background: var(--primary-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    white-space: nowrap;
+}
+
+.email-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    background: #4a5568;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    transition: background 0.3s ease;
+    min-height: 36px;
+    white-space: nowrap;
+    touch-action: manipulation;
+}
+
+.control-btn:hover {
+    background: #2d3748;
+}
+
+/* Email Filters - Mobile friendly */
+.email-filters {
+    margin-bottom: 15px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-group select,
+.filter-group input {
+    padding: 8px 10px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    min-height: 40px;
+}
+
+.filter-group input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Email List - Touch friendly */
+.email-list {
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+}
+
+.email-item {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.3s ease;
+    position: relative;
+    touch-action: manipulation;
+}
+
+.email-item:hover,
+.email-item:active {
+    background: var(--bg-light);
+}
+
+.email-item.unread {
+    background: #ebf8ff;
+    border-left: 4px solid #4299e1;
+}
+
+.email-item.unread .subject {
+    font-weight: bold;
+}
+
+.email-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 10px;
+}
+
+.sender {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    word-break: break-word;
+    flex: 1;
+}
+
+.date {
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.subject {
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.preview {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.email-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    transition: background 0.3s ease;
+    min-height: 32px;
+    touch-action: manipulation;
+}
+
+.action-btn:hover {
+    background: #5a67d8;
+}
+
+/* Email Viewer - Full responsive */
+.email-viewer {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    background: white;
+    height: 100%;
+}
+
+.email-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-light);
+    border-radius: var(--radius) var(--radius) 0 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.back-btn {
+    background: #4a5568;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    min-height: 36px;
+    touch-action: manipulation;
+}
+
+.back-btn:hover {
+    background: #2d3748;
+}
+
+.email-detail {
+    padding: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Stealth Controls - Mobile optimized */
+.stealth-controls {
+    position: fixed;
+    bottom: -300px;
+    left: 10px;
+    right: 10px;
+    background: var(--bg-dark);
+    color: white;
+    border-radius: var(--radius);
+    padding: 15px;
+    transition: bottom 0.3s ease;
+    z-index: 1000;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.stealth-controls.active {
+    bottom: 10px;
+}
+
+.stealth-trigger {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+    touch-action: manipulation;
+}
+
+.stealth-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+.stealth-section {
+    margin-bottom: 12px;
+}
+
+.stealth-section h4 {
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    margin-bottom: 6px;
+    opacity: 0.7;
+}
+
+.stealth-input {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    color: white;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    min-height: 36px;
+}
+
+.stealth-input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.stealth-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: clamp(0.6rem, 1.6vw, 0.7rem);
+    margin: 2px;
+    transition: background 0.3s ease;
+    min-height: 32px;
+    touch-action: manipulation;
+}
+
+.stealth-btn:hover,
+.stealth-btn:active {
+    background: rgba(255,255,255,0.2);
+}
+
+.stealth-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Voice Controls - Responsive */
+.voice-controls {
+    background: var(--bg-light);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid var(--border-light);
+}
+
+.voice-controls h3 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: clamp(0.9rem, 2.2vw, 1rem);
+}
+
+.voice-buttons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.voice-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    transition: background 0.3s ease;
+    min-height: 32px;
+    touch-action: manipulation;
+}
+
+.voice-btn:hover {
+    background: #5a67d8;
+}
+
+.voice-select {
+    padding: 4px 8px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    background: white;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    min-height: 32px;
+}
+
+.speed-control {
+    width: 60px;
+    margin: 0 6px;
+}
+
+/* Loading Animation */
+.loading {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    border: 3px solid var(--border-light);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-emails {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+.log-entry {
+    font-size: clamp(0.6rem, 1.6vw, 0.7rem);
+    opacity: 0.8;
+    margin: 2px 0;
+    padding: 2px 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    word-break: break-word;
+}
+
+/* Utility classes */
+.hidden { display: none !important; }
+.mt-8 { margin-top: 8px; }
+.badge-row { margin-top: 8px; }
+.codacy-badge { height: 20px; }
+#speedSelect { width: 60px; display: inline-block; margin-left: 5px; }
+#activityLog { max-height: 80px; overflow-y: auto; font-size: 0.7rem; }
+
+/* Desktop specific styles */
+@media (min-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .stealth-controls {
+        left: auto;
+        right: 20px;
+        width: 320px;
+        max-height: 70vh;
+    }
+    
+    .email-list {
+        max-height: 500px;
+    }
+    
+    .email-detail {
+        max-height: 500px;
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    .auto-reader-settings {
+        grid-template-columns: 1fr;
+    }
+    
+    .sources-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .email-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .email-controls {
+        justify-content: center;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .temp-email-address {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .provider-selection {
+        grid-template-columns: 1fr;
+    }
+    
+    .method-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .voice-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .email-viewer-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .email-actions {
+        justify-content: center;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .provider-btn img {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-white: #1a202c;
+        --bg-light: #2d3748;
+        --text-primary: #f7fafc;
+        --text-secondary: #a0aec0;
+        --border-light: #4a5568;
+    }
+    
+    .temp-email-section {
+        background: #1a2e1a;
+        border-color: #38a169;
+    }
+    
+    .temp-email-info {
+        background: #2d3748;
+        border-color: #48bb78;
+    }
+    
+    .email-address {
+        background: #4a5568;
+        color: #f7fafc;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .email-item {
+        border: 2px solid currentColor;
+    }
+    
+    .email-item.unread {
+        background: var(--text-primary);
+        color: var(--bg-white);
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .provider-btn:hover,
+    .connect-btn:hover,
+    .temp-btn:hover,
+    .control-btn:hover,
+    .action-btn:hover,
+    .voice-btn:hover,
+    .back-btn:hover,
+    .stealth-btn:hover {
+        transform: none;
+    }
+    
+    .method-card:hover {
+        transform: none;
+    }
+    
+    .email-item:hover {
+        background: var(--bg-light);
+    }
+}
+
+/* Print styles */
+@media print {
+    .stealth-controls,
+    .stealth-trigger,
+    .voice-controls,
+    .email-controls,
+    .email-actions {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Status indicator -->
+    <div class="status-indicator" id="statusIndicator">
+        <span id="statusText">Inactif</span>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>📧 Lecteur Universel de Messages</h1>
+            <p>Lecture automatique des emails, SMS et notifications - Compatible tous appareils</p>
+            <div class="badge-row">
+                <a href="https://app.codacy.com/gh/Yzaimbless/web-alert-app/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank" rel="noopener">
+                    <img src="https://app.codacy.com/project/badge/Grade/c3353c1e3ba346dd9e3996d3fee6b690" alt="Codacy Badge" class="codacy-badge">
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Auto-reader panel -->
+            <section class="auto-reader-panel" id="autoReaderPanel">
+                <div class="auto-reader-header">
+                    <h3 class="auto-reader-title">🤖 Lecture Automatique des Messages</h3>
+                    <label class="auto-toggle">
+                        <input type="checkbox" id="autoReadToggle" aria-label="Activer la lecture automatique">
+                        <span class="auto-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="auto-reader-settings">
+                    <div class="setting-group">
+                        <label for="readingMode">Mode de lecture</label>
+                        <select id="readingMode">
+                            <option value="immediate">Immédiate</option>
+                            <option value="delayed">Retardée (5s)</option>
+                            <option value="manual">Confirmation requise</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="voiceSpeed">Vitesse de lecture</label>
+                        <input type="range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1">
+                        <span id="speedDisplay">1.0x</span>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="messageFilter">Filtrer les messages</label>
+                        <select id="messageFilter">
+                            <option value="all">Tous les messages</option>
+                            <option value="emails">Emails uniquement</option>
+                            <option value="sms">SMS uniquement</option>
+                            <option value="important">Importants uniquement</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label for="readingVolume">Volume de lecture</label>
+                        <input type="range" id="readingVolume" min="0" max="1" step="0.1" value="0.8">
+                        <span id="volumeDisplay">80%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Message sources -->
+            <section class="message-sources">
+                <h3>📱 Sources de Messages Connectées</h3>
+                <div class="sources-grid" id="sourcesGrid">
+                    <div class="source-card" data-source="email">
+                        <div class="source-header">
+                            <span class="source-title">📧 Emails</span>
+                            <div class="source-status" id="emailStatus"></div>
+                        </div>
+                        <div class="source-description">Surveillance des boîtes email (Gmail, Outlook, Yahoo)</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectEmailSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('email')">Déconnecter</button>
+                        </div>
+                    </div>
+
+                    <div class="source-card" data-source="sms">
+                        <div class="source-header">
+                            <span class="source-title">💬 SMS</span>
+                            <div class="source-status" id="smsStatus"></div>
+                        </div>
+                        <div class="source-description">Lecture des SMS entrants (Android/iOS avec permissions)</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectSMSSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('sms')">Déconnecter</button>
+                        </div>
+                    </div>
+
+                    <div class="source-card" data-source="notifications">
+                        <div class="source-header">
+                            <span class="source-title">🔔 Notifications</span>
+                            <div class="source-status" id="notificationsStatus"></div>
+                        </div>
+                        <div class="source-description">Surveillance des notifications système</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectNotificationSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('notifications')">Déconnecter</button>
+                        </div>
+                    </div>
+
+                    <div class="source-card" data-source="messenger">
+                        <div class="source-header">
+                            <span class="source-title">💬 Messenger</span>
+                            <div class="source-status" id="messengerStatus"></div>
+                        </div>
+                        <div class="source-description">Messages Facebook, WhatsApp, Telegram (Web)</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectMessengerSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('messenger')">Déconnecter</button>
+                        </div>
+                    </div>
+
+                    <div class="source-card" data-source="social">
+                        <div class="source-header">
+                            <span class="source-title">📱 Réseaux Sociaux</span>
+                            <div class="source-status" id="socialStatus"></div>
+                        </div>
+                        <div class="source-description">Twitter, Instagram, LinkedIn notifications</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectSocialSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('social')">Déconnecter</button>
+                        </div>
+                    </div>
+
+                    <div class="source-card" data-source="clipboard">
+                        <div class="source-header">
+                            <span class="source-title">📋 Presse-papiers</span>
+                            <div class="source-status" id="clipboardStatus"></div>
+                        </div>
+                        <div class="source-description">Lecture du contenu copié contenant des messages</div>
+                        <div class="source-controls">
+                            <button class="source-btn" onclick="app.connectClipboardSource()">Connecter</button>
+                            <button class="source-btn disconnect hidden" onclick="app.disconnectSource('clipboard')">Déconnecter</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live messages display -->
+            <section class="live-messages">
+                <h3>📨 Messages en Temps Réel</h3>
+                <div id="liveMessagesList">
+                    <div class="no-emails">Aucun message intercepté - Activez les sources ci-dessus</div>
+                </div>
+            </section>
+
+            <!-- Section de connexion -->
+            <section class="login-section" id="loginSection">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h2>🔐 Connexion Email</h2>
+                        <p>Sélectionnez votre fournisseur d'email</p>
+                    </div>
+
+                    <div class="provider-selection">
+                        <button class="provider-btn" data-provider="gmail" type="button">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMyA3VjE3TDEyIDIyTDIxIDE3VjdMMTIgMloiIGZpbGw9IiNlYTQzMzUiLz4KPC9zdmc+" alt="Gmail" loading="lazy">
+                            <span>Gmail</span>
+                        </button>
+                        
+                        <button class="provider-btn" data-provider="outlook" type="button">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMyA3VjE3TDEyIDIyTDIxIDE3VjdMMTIgMloiIGZpbGw9IiMwMDc4ZDQiLz4KPC9zdmc+" alt="Outlook" loading="lazy">
+                            <span>Outlook</span>
+                        </button>
+                        
+                        <button class="provider-btn" data-provider="yahoo" type="button">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMyA3VjE3TDEyIDIyTDIxIDE3VjdMMTIgMloiIGZpbGw9IiM3MDA5ZGYiLz4KPC9zdmc+" alt="Yahoo" loading="lazy">
+                            <span>Yahoo</span>
+                        </button>
+
+                        <button class="provider-btn" data-provider="temp" type="button">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1zbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMyA3VjE3TDEyIDIyTDIxIDE3VjdMMTIgMloiIGZpbGw9IiNmZjU3MjIiLz4KPC9zdmc+" alt="Email temporaire" loading="lazy">
+                            <span>Email Temporaire</span>
+                        </button>
+                    </div>
+
+                    <div class="email-input-section hidden" id="emailInputSection">
+                        <div class="input-group">
+                            <label for="emailAddress">Adresse Email</label>
+                            <input type="email" id="emailAddress" placeholder="votre@email.com" required autocomplete="email" inputmode="email">
+                        </div>
+
+                        <div class="auth-options" id="authOptions">
+                            <div class="auth-method">
+                                <h3>Méthodes de connexion disponibles :</h3>
+                                <div class="method-cards">
+                                    <div class="method-card" data-method="oauth">
+                                        <h4>🔐 OAuth 2.0</h4>
+                                        <p>Connexion sécurisée via le navigateur</p>
+                                        <button class="connect-btn" type="button">Se connecter</button>
+                                    </div>
+                                    
+                                    <div class="method-card" data-method="imap">
+                                        <h4>📬 IMAP Public</h4>
+                                        <p>Lecture des emails publics uniquement</p>
+                                        <button class="connect-btn" type="button">Accéder</button>
+                                    </div>
+                                    
+                                    <div class="method-card" data-method="demo">
+                                        <h4>🎭 Mode Démo</h4>
+                                        <p>Simulation avec des emails factices</p>
+                                        <button class="connect-btn" type="button">Essayer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="temp-email-section hidden" id="tempEmailSection">
+                            <h3>📧 Générateur d'Email Temporaire</h3>
+                            <p>Générez un email temporaire pour recevoir des messages</p>
+                            <div class="temp-email-controls">
+                                <button id="generateTempEmail" class="temp-btn" type="button">Générer Email</button>
+                                <button id="refreshTempEmail" class="temp-btn" type="button">Actualiser</button>
+                            </div>
+                            <div id="tempEmailDisplay" class="temp-email-display"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section des emails -->
+            <section class="email-section hidden" id="emailSection">
+                <div class="email-header">
+                    <div class="email-info">
+                        <h2 id="currentEmail">📧 Boîte de réception</h2>
+                        <span id="emailCount" class="email-count">0 emails</span>
+                    </div>
+                    <div class="email-controls">
+                        <button id="refreshEmails" class="control-btn" type="button">🔄 Actualiser</button>
+                        <button id="logoutBtn" class="control-btn" type="button">🚪 Déconnexion</button>
+                    </div>
+                </div>
+
+                <div class="email-filters">
+                    <div class="filter-group">
+                        <select id="folderFilter" aria-label="Dossier">
+                            <option value="inbox">📥 Boîte de réception</option>
+                            <option value="sent">📤 Envoyés</option>
+                            <option value="draft">📝 Brouillons</option>
+                            <option value="spam">🚫 Spam</option>
+                        </select>
+                        
+                        <input type="text" id="searchFilter" placeholder="🔍 Rechercher..." aria-label="Rechercher dans les emails" inputmode="search">
+                        
+                        <select id="dateFilter" aria-label="Période">
+                            <option value="">Toutes les dates</option>
+                            <option value="today">Aujourd'hui</option>
+                            <option value="week">Cette semaine</option>
+                            <option value="month">Ce mois</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="email-content">
+                    <ul class="email-list" id="emailList" aria-label="Liste des emails">
+                        <div class="loading" id="emailLoading">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <p>Chargement des emails...</p>
+                        </div>
+                    </ul>
+
+                    <div class="email-viewer hidden" id="emailViewer">
+                        <div class="email-viewer-header">
+                            <button id="backToList" class="back-btn" type="button" aria-label="Retour à la liste">← Retour</button>
+                            <div class="email-actions">
+                                <button class="action-btn" type="button">💾 Sauvegarder</button>
+                                <button class="action-btn" type="button">📧 Répondre</button>
+                                <button class="action-btn" type="button">↗️ Transférer</button>
+                            </div>
+                        </div>
+                        <div class="email-detail" id="emailDetail" aria-label="Contenu de l'email"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Hidden stealth trigger -->
+        <button class="stealth-trigger" id="stealthTrigger" type="button" aria-label="Mode avancé" tabindex="-1"></button>
+
+        <!-- Stealth controls panel -->
+        <dialog class="stealth-controls" id="stealthControls" aria-labelledby="stealthTitle" aria-hidden="true">
+            <div class="stealth-header">
+                <span id="stealthTitle">🔧 Mode Avancé</span>
+                <button class="stealth-btn" onclick="app.toggleStealth()" type="button" aria-label="Fermer">✕</button>
+            </div>
+            
+            <div class="stealth-section">
+                <h4>📞 Communication</h4>
+                <input type="tel" id="stealthPhone" class="stealth-input" placeholder="Numéro" maxlength="15" autocomplete="tel" inputmode="tel" aria-label="Numéro de téléphone">
+                <div class="mt-8">
+                    <button class="stealth-btn" onclick="app.setContact()" id="setContactBtn" type="button">Définir</button>
+                    <button class="stealth-btn" onclick="app.initiateCall()" id="callBtn" disabled type="button">Appel</button>
+                    <button class="stealth-btn" onclick="app.sendMessage()" id="msgBtn" disabled type="button">SMS</button>
+                </div>
+            </div>
+            
+            <div class="stealth-section">
+                <h4>🎤 Audio</h4>
+                <div>
+                    <button class="stealth-btn" onclick="app.readContent()" id="readBtn" type="button">Lecture</button>
+                    <button class="stealth-btn" onclick="app.stopAudio()" id="stopBtn" type="button">Stop</button>
+                    <select id="speedSelect" class="stealth-input" aria-label="Vitesse de lecture">
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="stealth-section">
+                <h4>📋 Historique</h4>
+                <div id="activityLog" role="log" aria-label="Journal d'activité"></div>
+            </div>
+        </dialog>
+    </div>
+
+    <script>
+class UniversalStealthEmailApp {
+    // Champs de classe
+    currentProvider = null;
+    currentEmail = null;
+    emails = [];
+    tempEmailData = null;
+    contactNumber = null;
+    isReading = false;
+    stealthMode = false;
+    activityLog = [];
+    voices = [];
+    currentUtterance = null;
+    deferredPrompt = null;
+    messageInterceptors = new Map();
+    liveMessages = [];
+    autoReadEnabled = false;
+    connectedSources = new Set();
+    _expiryInt = null;
+    // Ajouts interception temps réel
+    clipboardInterval = null;
+    lastClipboardText = '';
+    smsAbortController = null;
+    tempMailPoller = null;
+
+    constructor() {
+        this.speechSynthesis = globalThis.speechSynthesis || null;
+        this.isMobile = this.detectMobile();
+        this.isTouch = 'ontouchstart' in globalThis;
+        this.readingSettings = { mode: 'immediate', speed: 1, volume: 0.8, filter: 'all' };
+        this.init();
+        this.initMessageReader();
+    }
+
+    detectMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+               (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.setupSpeechSynthesis();
+        this.initStealthMode();
+        this.loadStoredData();
+        this.setupPlatformOptimizations();
+        this.setupAccessibility();
+    }
+
+    escapeHTML(value) {
+        const span = document.createElement('span');
+        span.textContent = String(value ?? '');
+        return span.innerHTML;
+    }
+
+    clamp(n, min, max) {
+        const x = Number(n);
+        return Number.isFinite(x) ? Math.min(max, Math.max(min, x)) : min;
+    }
+
+    initMessageReader() {
+        // Active les contrôles auto-lecture sans erreur
+        const autoToggle = document.getElementById('autoReadToggle');
+        autoToggle?.addEventListener('change', (e) => {
+            const t = e && e.target ? e.target : null;
+            const checked = t && typeof t === 'object' && 'checked' in t ? t.checked : false;
+            this.autoReadEnabled = !!checked;
+            this.updateStatus(this.autoReadEnabled ? 'listening' : 'inactive');
+        });
+        const modeEl = document.getElementById('readingMode');
+        modeEl?.addEventListener('change', (e) => {
+            const t = e && e.target ? e.target : null;
+            if (t && typeof t === 'object' && 'value' in t) this.readingSettings.mode = t.value;
+        });
+        const speedEl = document.getElementById('voiceSpeed');
+        speedEl?.addEventListener('input', (e) => {
+            const t = e && e.target ? e.target : null;
+            const v = t && typeof t === 'object' && 'value' in t ? String(t.value) : '1';
+            this.readingSettings.speed = this.clamp(Number.parseFloat(v), 0.5, 2);
+            const sd = document.getElementById('speedDisplay');
+            if (sd) sd.textContent = `${this.readingSettings.speed.toFixed(1)}x`;
+        });
+        const volEl = document.getElementById('readingVolume');
+        volEl?.addEventListener('input', (e) => {
+            const t = e && e.target ? e.target : null;
+            const v = t && typeof t === 'object' && 'value' in t ? String(t.value) : String(this.readingSettings.volume);
+            this.readingSettings.volume = this.clamp(Number.parseFloat(v), 0, 1);
+            const vd = document.getElementById('volumeDisplay');
+            if (vd) vd.textContent = `${Math.round(this.readingSettings.volume * 100)}%`;
+        });
+        const filterEl = document.getElementById('messageFilter');
+        filterEl?.addEventListener('change', (e) => {
+            const t = e && e.target ? e.target : null;
+            if (t && typeof t === 'object' && 'value' in t) this.readingSettings.filter = t.value;
+        });
+    }
+
+    setupEventListeners() {
+        // Remplace .forEach par for…of pour la sélection des fournisseurs
+        const providerBtns = document.querySelectorAll('.provider-btn');
+        for (const btn of providerBtns) {
+            btn.addEventListener('click', () => {
+                const provider = btn.dataset.provider;
+                this.selectProvider(provider);
+                for (const b of providerBtns) b.classList.remove('selected');
+                btn.classList.add('selected');
+            });
+        }
+        // Remplace .forEach par for…of pour les méthodes de connexion
+        const methodBtns = document.querySelectorAll('.method-card .connect-btn');
+        for (const mbtn of methodBtns) {
+            mbtn.addEventListener('click', () => {
+                const method = mbtn.closest('.method-card')?.dataset.method;
+                this.connectWithMethod(method);
+            });
+        }
+        // Temp email
+        document.getElementById('generateTempEmail')?.addEventListener('click', () => this.generateTempEmail());
+        document.getElementById('refreshTempEmail')?.addEventListener('click', () => this.refreshTempEmail());
+        // Emails
+        document.getElementById('refreshEmails')?.addEventListener('click', () => this.refreshEmails());
+        document.getElementById('logoutBtn')?.addEventListener('click', () => this.logout());
+        document.getElementById('backToList')?.addEventListener('click', () => this.showEmailList());
+        // Recherche
+        const search = document.getElementById('searchFilter');
+        if (search) {
+            let t;
+            search.addEventListener('input', (e) => {
+                clearTimeout(t);
+                t = setTimeout(() => this.filterEmails(e.target.value || ''), this.isMobile ? 500 : 250);
+            });
+        }
+        // Filtres dossier/date
+        document.getElementById('folderFilter')?.addEventListener('change', () => this.displayEmails());
+        document.getElementById('dateFilter')?.addEventListener('change', () => this.displayEmails());
+        // Actions Viewer: Sauvegarder / Répondre / Transférer
+        const viewerActions = document.querySelector('#emailViewer .email-actions');
+        viewerActions?.addEventListener('click', (e) => {
+            const t = e.target;
+            if (!(t instanceof Element)) return;
+            const btn = t.closest('button');
+            if (!btn) return;
+            const label = btn.textContent || '';
+            if (label.includes('Sauvegarder')) {
+                this.logActivity('Email sauvegardé');
+                alert('Email sauvegardé (démo).');
+            } else if (label.includes('Répondre')) {
+                this.logActivity('Répondre à l\'email');
+                alert('Réponse (démo).');
+            } else if (label.includes('Transférer')) {
+                this.logActivity('Email transféré');
+                alert('Transfert (démo).');
+            }
+        });
+    }
+
+    async connectEmailSource() { this.updateSourceStatus('email', 'active'); this.logActivity('Source email connectée'); }
+    async connectSMSSource() {
+        try {
+            if (!('OTPCredential' in globalThis) || !navigator.credentials) throw new Error('WebOTP non supporté');
+            this.updateSourceStatus('sms', 'active');
+            this.addLiveMessage('sms', 'En écoute des SMS (WebOTP)');
+            // Abort l’ancienne écoute si active
+            if (this.smsAbortController) this.smsAbortController.abort();
+            this.smsAbortController = new AbortController();
+            const cred = await navigator.credentials.get({ otp: { transport: ['sms'] }, signal: this.smsAbortController.signal });
+            if (cred && cred.code) {
+                this.addLiveMessage('sms', `Code reçu: ${cred.code}`);
+            }
+        } catch (e) {
+            if (!e || String(e.name) !== 'AbortError') {
+                this.updateSourceStatus('sms', 'error');
+                this.logActivity('WebOTP indisponible (HTTPS requis, navigateur compatible)');
+                console.warn('WebOTP error:', e && (e.message || e));
+                alert('WebOTP non disponible sur cet appareil ou contexte non sécurisé (HTTPS requis).');
+            }
+        }
+    }
+    async connectNotificationSource() {
+        try {
+            const perm = await (globalThis.Notification?.requestPermission?.() || Promise.resolve('default'));
+            if (perm !== 'granted') throw new Error('refusée');
+            this.updateSourceStatus('notifications', 'active');
+            this.addLiveMessage('notifications', 'Notifications autorisées');
+        } catch {
+            this.updateSourceStatus('notifications', 'error');
+            alert('Autorisation notifications refusée.');
+        }
+    }
+    async connectMessengerSource() { this.updateSourceStatus('messenger', 'active'); this.logActivity('Source messenger connectée'); }
+    async connectSocialSource() { this.updateSourceStatus('social', 'active'); this.logActivity('Réseaux sociaux connectés'); }
+    async connectClipboardSource() {
+        try {
+            if (!navigator.clipboard?.readText) throw new Error('API clipboard indisponible');
+            // Essaye d’obtenir la permission (certaines implémentations exigent un geste utilisateur)
+            try { await navigator.permissions?.query({ name: 'clipboard-read' }); } catch (err) { console.debug('clipboard-read permission query not supported or denied', err); }
+            // Lecture initiale et démarrage du polling
+            const t = await navigator.clipboard.readText();
+            this.lastClipboardText = t || '';
+            this.updateSourceStatus('clipboard', 'active');
+            this.addLiveMessage('clipboard', 'Surveillance du presse-papiers activée');
+            if (this.clipboardInterval) clearInterval(this.clipboardInterval);
+            this.clipboardInterval = setInterval(async () => {
+                try {
+                    const txt = await navigator.clipboard.readText();
+                    if (txt && txt !== this.lastClipboardText) {
+                        this.lastClipboardText = txt;
+                        if (this.looksLikeMessage(txt)) {
+                            this.addLiveMessage('clipboard', txt);
+                        }
+                    }
+                } catch (err) { console.debug('Clipboard read transient error', err); }
+            }, 2000);
+        } catch (e) {
+            this.updateSourceStatus('clipboard', 'error');
+            console.warn('Clipboard connect error:', e && (e.message || e));
+            alert('Accès au presse-papiers refusé ou non supporté.');
+        }
+    }
+
+    disconnectSource(source) {
+        this.updateSourceStatus(source, 'inactive');
+        this.logActivity(`Source ${source} déconnectée`);
+        // Nettoyage spécifique
+        if (source === 'clipboard' && this.clipboardInterval) { clearInterval(this.clipboardInterval); this.clipboardInterval = null; }
+        if (source === 'sms' && this.smsAbortController) { this.smsAbortController.abort(); this.smsAbortController = null; }
+        if (source === 'notifications') { /* rien à faire */ }
+    }
+
+    // Emails
+    showEmailSection() {
+        const login = document.getElementById('loginSection');
+        const emailSection = document.getElementById('emailSection');
+        if (login) login.style.display = 'none';
+        if (emailSection) emailSection.style.display = 'block';
+        const ce = document.getElementById('currentEmail');
+        if (ce) ce.textContent = `📧 ${this.currentEmail || (this.tempEmailData?.email || 'Boîte de réception')}`;
+        this.displayEmails();
+    }
+
+    displayEmails() {
+        const list = document.getElementById('emailList');
+        const loading = document.getElementById('emailLoading');
+        if (loading) loading.style.display = 'none';
+        if (!list) return;
+        if (!this.emails || this.emails.length === 0) {
+            list.innerHTML = '<div class="no-emails">Aucun email trouvé</div>';
+            const ec = document.getElementById('emailCount');
+            if (ec) ec.textContent = '0 emails';
+            return;
+        }
+        list.innerHTML = this.emails.map(e => {
+            const from = this.escapeHTML(e?.from ?? '');
+            const subject = this.escapeHTML(e?.subject ?? '');
+            const preview = this.escapeHTML(e?.preview ?? '');
+            const date = this.formatDate(e?.date ?? new Date());
+            return `
+            <div class="email-item ${e.read ? 'read' : 'unread'}" data-email-id="${e.id}">
+                <div class="email-item-header">
+                    <div class="sender">${from}</div>
+                    <div class="date">${date}</div>
+                </div>
+                <div class="subject">${subject}</div>
+                <div class="preview">${preview}</div>
+                <div class="email-actions">
+                    <button class="action-btn" onclick="app.readEmail(${e.id})">👁️ Lire</button>
+                    <button class="action-btn" onclick="app.speakEmail(${e.id})">🔊 Écouter</button>
+                </div>
+            </div>`;
+        }).join('');
+        const cnt = document.getElementById('emailCount');
+        if (cnt) cnt.textContent = `${this.emails.length} emails`;
+    }
+
+    readEmail(id) {
+        const e = this.emails.find(x => x.id === id);
+        if (!e) return;
+        e.read = true;
+        const detail = document.getElementById('emailDetail');
+        if (detail) {
+            const subj = this.escapeHTML(e.subject ?? '');
+            const from = this.escapeHTML(e.from ?? '');
+            const body = this.escapeHTML(e.body ?? '');
+            const date = this.formatDate(e.date);
+            detail.innerHTML = `
+                <div class="email-header">
+                    <h2>${subj}</h2>
+                    <div class="email-meta">
+                        <div><strong>De:</strong> ${from}</div>
+                        <div><strong>Date:</strong> ${date}</div>
+                    </div>
+                </div>
+                <div class="email-body">${body}</div>`;
+        }
+        document.getElementById('emailList')?.setAttribute('style', 'display:none');
+        document.getElementById('emailViewer')?.setAttribute('style', 'display:block');
+        this.logActivity(`Email lu: ${(e.subject || '').substring(0, 20)}...`);
+    }
+
+    showEmailList() {
+        document.getElementById('emailViewer')?.setAttribute('style', 'display:none');
+        document.getElementById('emailList')?.setAttribute('style', 'display:block');
+    }
+
+    speakEmail(id) {
+        const e = this.emails.find(x => x.id === id);
+        if (!e) return;
+        const text = `Email de ${e.from}. Sujet: ${e.subject}. ${e.body}`;
+        this.speakText(text);
+        // Live feed
+        this.addLiveMessage('email', `Lecture: ${e.subject}`);
+    }
+
+    refreshEmails() {
+        const loading = document.getElementById('emailLoading');
+        if (loading) loading.style.display = 'block';
+        setTimeout(() => {
+            if (loading) loading.style.display = 'none';
+            const id = Date.now();
+            this.emails.unshift({ id, from: 'test@example.com', subject: 'Nouveau message', date: new Date(), preview: 'Message de test...', body: 'Ceci est un message de test ajouté lors du rafraîchissement.', read: false });
+            this.displayEmails();
+            this.logActivity('Emails actualisés');
+            this.addLiveMessage('email', 'Nouveau message reçu (démo)');
+        }, 600);
+    }
+
+    filterEmails(term) {
+        const list = document.getElementById('emailList');
+        if (!list) return;
+        const t = String(term || '').toLowerCase();
+        const emails = this.emails.filter(e => `${e.subject} ${e.from} ${e.body}`.toLowerCase().includes(t));
+        list.innerHTML = emails.map(e => {
+            const from = this.escapeHTML(e?.from ?? '');
+            const subject = this.escapeHTML(e?.subject ?? '');
+            const preview = this.escapeHTML(e?.preview ?? '');
+            const date = this.formatDate(e?.date ?? new Date());
+            return `
+            <div class="email-item ${e.read ? 'read' : 'unread'}" data-email-id="${e.id}">
+                <div class="email-item-header">
+                    <div class="sender">${from}</div>
+                    <div class="date">${date}</div>
+                </div>
+                <div class="subject">${subject}</div>
+                <div class="preview">${preview}</div>
+                <div class="email-actions">
+                    <button class="action-btn" onclick="app.readEmail(${e.id})">👁️ Lire</button>
+                    <button class="action-btn" onclick="app.speakEmail(${e.id})">🔊 Écouter</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    formatDate(date) {
+        const d = (date instanceof Date) ? date : new Date(date);
+        return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d);
+    }
+
+    // Stealth
+    initStealthMode() {
+        let clicks = 0; let timer = null;
+        const trigger = document.getElementById('stealthTrigger');
+        const handler = (e) => {
+            e.preventDefault(); clicks++;
+            if (clicks === 1) { timer = setTimeout(() => { clicks = 0; }, 800); }
+            if (clicks === 3) { clearTimeout(timer); clicks = 0; this.toggleStealth(); if (this.isMobile && 'vibrate' in navigator) navigator.vibrate([50,100,50]); }
+        };
+        trigger?.addEventListener('click', handler);
+        if (this.isTouch) trigger?.addEventListener('touchend', handler);
+        document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'H') { e.preventDefault(); this.toggleStealth(); } });
+    }
+
+    toggleStealth() {
+        this.stealthMode = !this.stealthMode;
+        const panel = document.getElementById('stealthControls');
+        if (!panel) return;
+        if (this.stealthMode) {
+            panel.classList.add('active');
+            panel.setAttribute('aria-hidden', 'false');
+            if (panel.tagName === 'DIALOG' && !panel.hasAttribute('open')) panel.setAttribute('open', '');
+            setTimeout(() => document.getElementById('stealthPhone')?.focus(), 200);
+        } else {
+            panel.classList.remove('active');
+            panel.setAttribute('aria-hidden', 'true');
+            if (panel.tagName === 'DIALOG' && panel.hasAttribute('open')) panel.removeAttribute('open');
+        }
+    }
+
+    setContact() {
+        const input = document.getElementById('stealthPhone');
+        const phone = (input?.value || '').trim();
+        const phoneRegex = /^[+]?[0-9\s\-()]{8,}$/;
+        if (!phone || !phoneRegex.test(phone)) { alert('Numéro invalide'); input?.focus(); return; }
+        this.contactNumber = phone; this.storeData('contact', phone);
+        const callBtn = document.getElementById('callBtn');
+        const msgBtn = document.getElementById('msgBtn');
+        if (callBtn) callBtn.removeAttribute('disabled');
+        if (msgBtn) msgBtn.removeAttribute('disabled');
+       
+        this.logActivity('Contact configuré');
+    }
+
+    initiateCall() {
+        if (!this.contactNumber) { alert('Aucun contact'); return; }
+        try {
+            if (this.isMobile) { globalThis.location.href = `tel:${this.contactNumber}`; }
+            else { const a = document.createElement('a'); a.href = `tel:${this.contactNumber}`; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); }
+            this.logActivity('Appel initié');
+        } catch (e) { this.logActivity('Erreur appel'); console.warn('Erreur appel:', e); this.updateStatus('error'); }
+    }
+
+    sendMessage() {
+        if (!this.contactNumber) { alert('Aucun contact'); return; }
+        const message = prompt('Votre message:');
+        if (!message) return;
+        try {
+            if (this.isMobile) { globalThis.location.href = `sms:${this.contactNumber}?body=${encodeURIComponent(message)}`; }
+            else { const a = document.createElement('a'); a.href = `sms:${this.contactNumber}?body=${encodeURIComponent(message)}`; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove(); }
+            this.logActivity('SMS envoyé');
+        } catch (e) { this.logActivity('Erreur SMS'); console.warn('Erreur SMS:', e); this.updateStatus('error'); }
+    }
+
+    setupSpeechSynthesis() {
+        try {
+            if (!this.speechSynthesis) return;
+            const loadVoices = () => {
+                this.voices = (this.speechSynthesis.getVoices && Array.isArray(this.speechSynthesis.getVoices()))
+                    ? this.speechSynthesis.getVoices()
+                    : [];
+            };
+            loadVoices();
+            if (typeof this.speechSynthesis.addEventListener === 'function') {
+                this.speechSynthesis.addEventListener('voiceschanged', loadVoices);
+            }
+        } catch (e) {
+            console.warn('Init synthèse vocale impossible:', e && (e.message || e));
+        }
+    }
+
+    setupPlatformOptimizations() {
+        try {
+            // Point d’extension optimisations (no-op pour l’instant)
+        } catch (e) { console.warn('Optimisation plateforme: erreur ignorée', e && (e.message || e)); }
+    }
+
+    setupAccessibility() {
+        try {
+            const ind = document.getElementById('statusIndicator');
+            if (ind) ind.setAttribute('role', 'status');
+        } catch (e) { console.warn('Accessibilité: erreur ignorée', e && (e.message || e)); }
+    }
+
+    logActivity(message) {
+        try {
+            const ts = new Date();
+            const entry = `${ts.toLocaleTimeString('fr-FR')} — ${String(message || '')}`;
+            this.activityLog.push(entry);
+            if (this.activityLog.length > 100) this.activityLog = this.activityLog.slice(-100);
+            const logEl = document.getElementById('activityLog');
+            if (logEl) {
+                logEl.innerHTML = this.activityLog
+                    .map(m => `<div class="log-entry">${this.escapeHTML(m)}</div>`) 
+                    .join('');
+            }
+            try { sessionStorage.setItem('_activities', JSON.stringify(this.activityLog)); } catch (e) { console.warn('Sauvegarde activités échouée:', e && (e.message || e)); }
+        } catch (e) {
+            console.warn('Journalisation impossible:', e && (e.message || e));
+        }
+    }
+
+    updateStatus(state) {
+        const ind = document.getElementById('statusIndicator');
+        const txt = document.getElementById('statusText');
+        if (!ind || !txt) return;
+        ind.classList.remove('active', 'listening', 'reading', 'error');
+        let label = 'Inactif';
+        switch (state) {
+            case 'listening':
+                ind.classList.add('active', 'listening');
+                label = 'En écoute';
+                break;
+            case 'reading':
+                ind.classList.add('active', 'reading');
+                label = 'Lecture en cours';
+                break;
+            case 'error':
+                ind.classList.add('active', 'error');
+                label = 'Erreur';
+                break;
+            default:
+                // reste caché si inactif
+                break;
+        }
+        txt.textContent = label;
+        if (state === 'inactive') ind.classList.remove('active');
+    }
+
+    storeData(key, value) {
+        try {
+            const k = `_${key}`;
+            const v = (typeof value === 'string') ? value : JSON.stringify(value);
+            sessionStorage.setItem(k, v);
+        } catch (e) {
+            console.warn('Stockage impossible:', e && (e.message || e));
+        }
+    }
+
+    loadStoredData() {
+        try {
+            const contact = sessionStorage.getItem('_contact');
+            if (contact) {
+                this.contactNumber = contact;
+                const input = document.getElementById('stealthPhone');
+                if (input) input.value = contact;
+                document.getElementById('callBtn')?.removeAttribute('disabled');
+                document.getElementById('msgBtn')?.removeAttribute('disabled');
+            }
+            const acts = sessionStorage.getItem('_activities');
+            if (acts) {
+                try {
+                    const arr = JSON.parse(acts);
+                    if (Array.isArray(arr)) this.activityLog = arr.slice(-100);
+                } catch (e) { console.warn('Parsing activités échoué:', e && (e.message || e)); }
+                const logEl = document.getElementById('activityLog');
+                if (logEl) {
+                    logEl.innerHTML = this.activityLog
+                        .map(m => `<div class="log-entry">${this.escapeHTML(m)}</div>`) 
+                        .join('');
+                }
+            }
+        } catch (e) {
+            console.warn('Chargement des données échoué:', e && (e.message || e));
+        }
+    }
+
+    readContent() {
+        try {
+            let text = '';
+            const sel = globalThis.getSelection ? String(globalThis.getSelection()) : '';
+            if (sel && sel.trim()) text = sel.trim();
+            if (!text) {
+                const detail = document.getElementById('emailDetail');
+                if (detail) text = (detail.textContent || '').trim();
+            }
+            if (!text) text = 'Aucun contenu à lire.';
+            this.speakText(text);
+        } catch (e) {
+            this.updateStatus('error');
+            console.warn('Lecture du contenu impossible:', e && (e.message || e));
+        }
+    }
+
+    stopReading() {
+        try {
+            if (this.speechSynthesis && this.speechSynthesis.speaking) {
+                this.speechSynthesis.cancel();
+            }
+        } catch (e) {
+            console.warn('Arrêt de la lecture impossible:', e && (e.message || e));
+        }
+        this.isReading = false;
+        this.currentUtterance = null;
+        this.updateStatus(this.autoReadEnabled ? 'listening' : 'inactive');
+    }
+
+    stopAudio() { this.stopReading(); }
+
+    speakText(text) {
+        const s = String(text || '').trim();
+        if (!s) return;
+        if (!this.speechSynthesis) { alert('Synthèse vocale indisponible'); return; }
+        try {
+            if (this.speechSynthesis.speaking) {
+                this.speechSynthesis.cancel();
+            }
+            const u = new SpeechSynthesisUtterance(s);
+            const sel = document.getElementById('speedSelect');
+            let rate = this.readingSettings?.speed ?? 1;
+            if (sel && typeof sel.value === 'string') {
+                const v = Number.parseFloat(sel.value);
+                if (!Number.isNaN(v)) rate = this.clamp(v, 0.5, 2);
+            }
+            u.rate = rate;
+            u.volume = this.clamp(this.readingSettings?.volume ?? 0.8, 0, 1);
+            u.lang = 'fr-FR';
+            if (Array.isArray(this.voices) && this.voices.length) {
+                const fr = this.voices.find(v => String(v.lang || '').toLowerCase().startsWith('fr')) || this.voices[0];
+                if (fr) u.voice = fr;
+            }
+            u.onstart = () => { this.isReading = true; this.currentUtterance = u; this.updateStatus('reading'); };
+            u.onend = () => { this.isReading = false; this.currentUtterance = null; this.updateStatus(this.autoReadEnabled ? 'listening' : 'inactive'); };
+            u.onerror = (e) => { console.warn('TTS erreur:', e && (e.message || e)); this.isReading = false; this.currentUtterance = null; this.updateStatus('error'); };
+            this.speechSynthesis.speak(u);
+        } catch (e) {
+            console.warn('Synthèse vocale impossible:', e && (e.message || e));
+            this.updateStatus('error');
+        }
+    }
+
+    // Live messages utils
+    addLiveMessage(source, content) {
+        try {
+            const list = document.getElementById('liveMessagesList');
+            if (!list) return;
+            list.querySelector('.no-emails')?.remove();
+            const entry = { id: Date.now(), source, content: String(content || ''), time: new Date() };
+            this.liveMessages.unshift(entry);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'live-message-item new';
+            const time = entry.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            wrapper.innerHTML = `
+                <div class="message-header">
+                    <span class="message-source">${this.escapeHTML(source)}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">${this.escapeHTML(entry.content)}</div>
+                <div class="message-actions">
+                    <button class="message-btn" type="button" onclick="app.speakText(app.summarizeLive(${entry.id}))">🔊 Lire</button>
+                </div>`;
+            list.prepend(wrapper);
+            // Auto-lecture si activée et filtrée
+            if (this.autoReadEnabled && this.shouldAutoReadSource(source)) {
+                this.speakText(this.summarizeLive(entry.id));
+            }
+            // Notification système si autorisée
+            try {
+                if (globalThis.Notification && Notification.permission === 'granted' && source !== 'notifications') {
+                    new Notification('Nouveau message', { body: `${source}: ${entry.content.slice(0, 120)}` });
+                }
+            } catch (err) { console.debug('Notification display error', err); }
+        } catch (e) { console.warn('Live msg err:', e && (e.message || e)); }
+    }
+
+    summarizeLive(entryOrId) {
+        const entry = typeof entryOrId === 'object' ? entryOrId : this.liveMessages.find(m => m.id === entryOrId);
+        if (!entry) return '';
+        const src = String(entry.source || '').toLowerCase();
+        return `Message ${src} à ${entry.time.toLocaleTimeString('fr-FR')}: ${entry.content}`;
+    }
+
+    shouldAutoReadSource(source) {
+        const f = String(this.readingSettings?.filter || 'all');
+        if (f === 'all') return true;
+        if (f === 'emails') {
+            const latest = this.liveMessages[0]?.content || '';
+            return source === 'email' || (source === 'clipboard' && /@/.test(String(latest)));
+        }
+        if (f === 'sms') return source === 'sms';
+        if (f === 'important') return /code|otp|vérif|urgent|alerte/i.test(source) || /code|otp|urgent|alerte/i.test('' + (this.liveMessages[0]?.content || ''));
+        return true;
+    }
+
+    looksLikeMessage(text) {
+        const s = String(text || '');
+        return /@|https?:\/\/|\botp\b|\bcode\b|\bsms\b|\bvérif\b/i.test(s);
+    }
+
+    // Temp mail via 1secmail
+    async generateTempEmail() {
+        try {
+            const resp = await fetch('https://www.1secmail.com/api/v1/?action=genRandomMailbox&count=1');
+            const arr = await resp.json();
+            const email = Array.isArray(arr) && arr[0] ? String(arr[0]) : null;
+            if (!email) throw new Error('Génération échouée');
+            this.tempEmailData = { email, expiry: Date.now() + 10 * 60 * 1000, messages: [], seenIds: new Set() };
+            const section = document.getElementById('tempEmailSection');
+            if (section) section.style.display = 'block';
+            this.displayTempEmail();
+            this.currentEmail = email;
+            this.showEmailSection();
+            this.logActivity('Email temporaire généré (1secmail)');
+            this.startTempMailPolling();
+        } catch (e) {
+            console.warn('1secmail generation error, using fallback:', e && (e.message || e));
+            // Fallback local si l’API échoue
+            const domains = ['tempmail.fr', 'guerrillamail.com', '10minutemail.com'];
+            const local = Math.random().toString(36).slice(2, 8);
+            const domain = domains[Math.floor(Math.random() * domains.length)];
+            this.tempEmailData = { email: `${local}@${domain}`, expiry: Date.now() + 10 * 60 * 1000, messages: [], seenIds: new Set() };
+            const section = document.getElementById('tempEmailSection');
+            if (section) section.style.display = 'block';
+            this.displayTempEmail();
+            this.currentEmail = this.tempEmailData.email;
+            this.showEmailSection();
+            this.logActivity('Email temporaire généré (fallback)');
+        }
+    }
+
+    startTempMailPolling() {
+        try {
+            if (!this.tempEmailData?.email) return;
+            const [login, domain] = this.tempEmailData.email.split('@');
+            if (!login || !domain) return;
+            if (this.tempMailPoller) clearInterval(this.tempMailPoller);
+            this.tempMailPoller = setInterval(async () => {
+                try {
+                    const url = `https://www.1secmail.com/api/v1/?action=getMessages&login=${encodeURIComponent(login)}&domain=${encodeURIComponent(domain)}`;
+                    const list = await (await fetch(url)).json();
+                    if (!Array.isArray(list)) return;
+                    for (const m of list) {
+                        if (!this.tempEmailData.seenIds.has(m.id)) {
+                            this.tempEmailData.seenIds.add(m.id);
+                            const fullUrl = `https://www.1secmail.com/api/v1/?action=readMessage&login=${encodeURIComponent(login)}&domain=${encodeURIComponent(domain)}&id=${m.id}`;
+                            const full = await (await fetch(fullUrl)).json();
+                            const email = {
+                                id: m.id,
+                                from: full.from,
+                                subject: full.subject,
+                                date: new Date(full.date || Date.now()),
+                                preview: (full.textBody || full.htmlBody || '').slice(0, 120),
+                                body: full.textBody || full.htmlBody || '',
+                                read: false
+                            };
+                            this.emails.unshift(email);
+                            this.displayEmails();
+                            this.addLiveMessage('email', `De ${email.from} — ${email.subject}`);
+                        }
+                    }
+                } catch (err) { console.debug('Temp mail polling error', err); }
+            }, 10000);
+        } catch (e) { console.warn('Temp mail polling err:', e && (e.message || e)); }
+    }
+
+    logout() {
+        try {
+            this.stopReading();
+            this.currentEmail = null;
+            this.emails = [];
+            const emailSection = document.getElementById('emailSection');
+            const login = document.getElementById('loginSection');
+            if (emailSection) emailSection.style.display = 'none';
+            if (login) login.style.display = 'block';
+            const list = document.getElementById('emailList');
+            if (list) list.innerHTML = '<div class="no-emails">Aucun email trouvé</div>';
+            const cnt = document.getElementById('emailCount');
+            if (cnt) cnt.textContent = '0 emails';
+            const ce = document.getElementById('currentEmail');
+            if (ce) ce.textContent = '📧 Boîte de réception';
+            const providerBtns = document.querySelectorAll('.provider-btn');
+            for (const b of providerBtns) b.classList.remove('selected');
+            // Nettoyage interceptions
+            if (this.clipboardInterval) { clearInterval(this.clipboardInterval); this.clipboardInterval = null; }
+            if (this.smsAbortController) { this.smsAbortController.abort(); this.smsAbortController = null; }
+            if (this.tempMailPoller) { clearInterval(this.tempMailPoller); this.tempMailPoller = null; }
+            this.updateStatus('inactive');
+            this.logActivity('Déconnexion effectuée');
+        } catch (e) {
+            console.warn('Déconnexion impossible:', e && (e.message || e));
+            this.updateStatus('error');
+        }
+    }
+}
+
+// Initialisation et exposition globale pour les onclick inline
+const app = new UniversalStealthEmailApp();
+globalThis.app = app;
+
+globalThis.addEventListener('load', () => { app.loadStoredData(); });
+
+globalThis.addEventListener('beforeunload', () => {
+    try {
+        sessionStorage.removeItem('_contact');
+        sessionStorage.removeItem('_activities');
+    } catch (error) {
+        console.warn('Impossible de nettoyer les données:', error && (error.message || error));
+    }
+});
+    </script>
+</body>
+</html>
