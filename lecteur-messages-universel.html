@@ -1809,13 +1809,28 @@ class UniversalStealthEmailApp {
                 <div class="subject">${subject}</div>
                 <div class="preview">${preview}</div>
                 <div class="email-actions">
-                    <button class="action-btn" onclick="app.readEmail(${e.id})">👁️ Lire</button>
-                    <button class="action-btn" onclick="app.speakEmail(${e.id})">🔊 Écouter</button>
+                    <button class="action-btn" data-action="read">👁️ Lire</button>
+                    <button class="action-btn" data-action="speak">🔊 Écouter</button>
                 </div>
             </div>`;
         }).join('');
         const cnt = document.getElementById('emailCount');
         if (cnt) cnt.textContent = `${this.emails.length} emails`;
+        // Add event delegation for email actions
+        list.addEventListener('click', (event) => {
+            const btn = event.target.closest('button.action-btn[data-action]');
+            if (!btn) return;
+            const emailItem = btn.closest('.email-item');
+            if (!emailItem) return;
+            const emailId = emailItem.getAttribute('data-email-id');
+            if (!emailId) return;
+            const id = Number(emailId);
+            if (btn.getAttribute('data-action') === 'read') {
+                this.readEmail(id);
+            } else if (btn.getAttribute('data-action') === 'speak') {
+                this.speakEmail(id);
+            }
+        }, { passive: true });
     }
 
     readEmail(id) {
